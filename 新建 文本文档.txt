@@ -17,18 +17,25 @@ single_file_llm_guided_rl_v3
 
 baseline_sac
 纯 SAC 基线，不用高层 planner
+
 shaping_sac
 用 reward shaping 的 SAC
+
 rule_hier
 规则高层 + SAC
+
 llm_hier
 Mock LLM 高层 + SAC
+
 constrained_rule_hier
 规则高层 + Constrained SAC
+
 constrained_llm_hier
 Mock LLM 高层 + Constrained SAC
+
 real_llm_hier
 真实 LLM 高层 + SAC
+
 constrained_real_llm_hier
 真实 LLM 高层 + Constrained SAC
 
