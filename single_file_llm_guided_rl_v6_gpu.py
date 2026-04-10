@@ -16,6 +16,9 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
+# Force this script to see/use GPU 0 only.
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -107,14 +110,14 @@ class EnvConfig:
 
 @dataclass
 class PlannerConfig:
-    planner_interval: int = 7
+    planner_interval: int = 10
     waypoint_horizon: int = 5
     waypoint_gap: float = 8.0
-    replan_ttc_threshold: float = 2.5
-    replan_front_distance: float = 14.0
+    replan_ttc_threshold: float = 2.0
+    replan_front_distance: float = 12.0
 
-    target_speed_free: float = 28.0
-    target_speed_cautious: float = 23.0
+    target_speed_free: float = 26.0
+    target_speed_cautious: float = 20.0
     target_speed_brake: float = 15.0
 
     conservative_headway: float = 18.0
@@ -125,8 +128,8 @@ class PlannerConfig:
     steer_max: float = 0.20
     comfort_acc_delta: float = 1.8
 
-    lane_change_cooldown_steps: int = 10
-    lane_change_min_improvement: float = 6.0
+    lane_change_cooldown_steps: int = 14
+    lane_change_min_improvement: float = 8.0
 
     print_prompt_on_replan: bool = False
     print_real_llm_error: bool = True
@@ -141,12 +144,12 @@ class RewardConfig:
     w_waypoint_pos = 0.35
     w_waypoint_speed = 0.22
 
-    w_collision = 5.5
-    w_headway = 1.8
+    w_collision = 6.0
+    w_headway = 2.4
     w_overspeed = 0.9
 
     w_action = 0.02
-    w_action_smooth = 0.12
+    w_action_smooth = 0.15
     w_lane_change = 0.40
 
 
@@ -183,7 +186,7 @@ class TrainConfig:
     episodes: int = 10
     max_steps_per_episode: int = 200
     eval_every: int = 1
-    device: str = "cuda"
+    device: str = "cuda:0"
     mode: str = "rule_hier"
     render: bool = False
     print_every_step: bool = False
@@ -342,37 +345,24 @@ def get_config() -> Config:
 
 
 def resolve_runtime_device(requested_device: str) -> str:
-    requested = str(requested_device or "cuda").strip()
+    requested = str(requested_device or "cuda:0").strip()
     requested_lower = requested.lower()
 
-    if requested_lower == "auto":
-        if torch.cuda.is_available():
-            return "cuda"
-        if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
-            return "mps"
-        return "cpu"
+    # This script is intentionally pinned to GPU 0 only.
+    allowed_aliases = {"auto", "gpu", "cuda", "cuda:0"}
+    if requested_lower not in allowed_aliases:
+        raise RuntimeError(
+            f"Unsupported device '{requested_device}'. "
+            "This script is pinned to GPU0 only; use --device cuda:0."
+        )
 
-    if requested_lower == "gpu":
-        requested_lower = "cuda"
-        requested = "cuda"
+    if not torch.cuda.is_available():
+        raise RuntimeError(
+            "GPU0 is required but CUDA is unavailable. "
+            "Please install CUDA-enabled PyTorch and ensure NVIDIA driver is ready."
+        )
 
-    if requested_lower.startswith("cuda"):
-        if not torch.cuda.is_available():
-            raise RuntimeError(
-                "CUDA device requested but torch.cuda.is_available() is False. "
-                "Install a CUDA-enabled PyTorch build or run with --device cpu."
-            )
-        return requested
-
-    if requested_lower == "mps":
-        if not (hasattr(torch.backends, "mps") and torch.backends.mps.is_available()):
-            raise RuntimeError("MPS device requested but MPS backend is unavailable.")
-        return "mps"
-
-    if requested_lower == "cpu":
-        return "cpu"
-
-    raise RuntimeError(f"Unknown device '{requested_device}'. Use one of: cuda, cuda:N, gpu, mps, cpu, auto.")
+    return "cuda:0"
 
 
 def describe_runtime_device(device_str: str) -> str:
@@ -390,7 +380,10 @@ def describe_runtime_device(device_str: str) -> str:
 def configure_torch_runtime(device_str: str) -> None:
     device = torch.device(device_str)
     if device.type != "cuda":
-        return
+        raise RuntimeError("This script is pinned to GPU0 and does not support non-CUDA runtime.")
+    if device.index not in (None, 0):
+        raise RuntimeError(f"Only cuda:0 is allowed, got '{device_str}'.")
+    torch.cuda.set_device(0)
     if hasattr(torch.backends, "cudnn"):
         torch.backends.cudnn.benchmark = True
         if hasattr(torch.backends.cudnn, "allow_tf32"):
@@ -1244,7 +1237,8 @@ def stabilize_lane_decision(cfg, scene: dict, proposed_lane: int, planner_state:
         return current_lane, "insufficient_gain"
 
     last_change_step = int(planner_state.get("last_change_step", -10**9))
-    active_target_lane = int(planner_state.get("active_target_lane", current_lane))
+    active_target_lane_raw = planner_state.get("active_target_lane", current_lane)
+    active_target_lane = current_lane if active_target_lane_raw is None else int(active_target_lane_raw)
     if step_idx is not None and (step_idx - last_change_step) < cfg.planner.lane_change_cooldown_steps:
         return active_target_lane, "cooldown_hold"
 
@@ -1256,7 +1250,7 @@ def stabilize_lane_decision(cfg, scene: dict, proposed_lane: int, planner_state:
 class RulePlanner:
     def __init__(self, cfg):
         self.cfg = cfg
-        self.state = {"active_target_lane": None, "last_change_step": -10**9}
+        self.state = {"last_change_step": -10**9}
 
     def plan(self, scene: dict, step_idx: Optional[int] = None) -> dict:
         lane_id = scene["lane_id"]
@@ -1533,7 +1527,7 @@ class LLMPlanner:
         self.cfg = cfg
         self.prompt_builder = PromptBuilder(cfg)
         self.backend = backend
-        self.state = {"active_target_lane": None, "last_change_step": -10**9}
+        self.state = {"last_change_step": -10**9}
 
     def _extract_json_string(self, text: str) -> str:
         text = text.strip()
@@ -3363,7 +3357,7 @@ def parse_args():
     parser.add_argument("--max-steps", type=int, default=200)
     parser.add_argument("--render", action="store_true")
     parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--device", type=str, default="cuda")
+    parser.add_argument("--device", type=str, default="cuda:0")
 
     parser.add_argument("--eval-episodes", type=int, default=3)
     parser.add_argument("--disable-eval", action="store_true")

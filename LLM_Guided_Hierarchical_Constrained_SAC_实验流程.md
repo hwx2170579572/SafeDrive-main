@@ -180,6 +180,9 @@ python single_file_llm_guided_rl_v6.py \
   --max-steps 200 \
   --eval-episodes 5 \
   --eval-primary-report raw
+
+跑多组随机种子
+  python single_file_llm_guided_rl_v6_gpu.py --workflow-stage dev --mode compare --compare-modes rule_hier --compare-seeds 42,52,62,72,82 --episodes 120 --max-steps 200 --eval-episodes 5 --eval-primary-report raw --compare-primary-report raw --compare-save-json results/dev_rule_hier_5seeds.json --compare-save-csv results/dev_rule_hier_5seeds.csv   
 ```
 
 ---
@@ -196,7 +199,29 @@ python single_file_llm_guided_rl_v6.py \
   --eval-primary-report raw \
   --llm-backend mock
 ```
+python single_file_llm_guided_rl_v6_gpu_priority1_tensorboard.py --workflow-stage dev --mode compare --compare-modes constrained_llm_hier --compare-seeds 42,52,62,72,82 --episodes 120 --max-steps 200 --eval-episodes 5 --eval-primary-report raw --compare-primary-report raw --llm-backend mock --tensorboard-dir results/tb_dev_constrained_llm_hier_5seeds --compare-save-json results/dev_constrained_llm_hier_5seeds.json --compare-save-csv results/dev_constrained_llm_hier_5seeds.csv      
 
+python single_file_llm_guided_rl_v6_gpu_priority2_tensorboard.py --workflow-stage dev --mode compare --compare-modes constrained_llm_hier --compare-seeds 42,52,62,72,82 --episodes 120 --max-steps 200 --eval-episodes 5 --eval-primary-report raw --compare-primary-report raw --llm-backend mock --lambda-ema-beta 0.97 --min-lambda-collision 0.01 --min-lambda-headway 0.01 --collision-risk-ttc-threshold 4.0 --collision-risk-front-distance 10.0 --tensorboard-dir results/tb_dev_constrained_llm_hier_p2_5seeds --compare-save-json results/dev_constrained_llm_hier_p2_5seeds.json --compare-save-csv results/dev_constrained_llm_hier_p2_5seeds.csv 
+
+python single_file_llm_guided_rl_v6_gpu_priority2_tensorboard.py \
+  --workflow-stage dev \
+  --mode compare \
+  --compare-modes llm_hier,constrained_llm_hier,constrained_rule_hier \
+  --compare-seeds 42,52,62,72,82 \
+  --episodes 120 \
+  --max-steps 200 \
+  --eval-episodes 5 \
+  --eval-primary-report raw \
+  --compare-primary-report raw \
+  --llm-backend mock \
+  --lambda-ema-beta 0.97 \
+  --min-lambda-collision 0.01 \
+  --min-lambda-headway 0.01 \
+  --collision-risk-ttc-threshold 4.0 \
+  --collision-risk-front-distance 10.0 \
+  --tensorboard-dir results/tb_dev_p2_crosscheck_5seeds \
+  --compare-save-json results/dev_p2_crosscheck_5seeds.json \
+  --compare-save-csv results/dev_p2_crosscheck_5seeds.csv
 ---
 
 ### 6.4 开发阶段重点看哪些指标
@@ -555,3 +580,7 @@ python single_file_llm_guided_rl_v6.py --workflow-stage formal --freeze-load fro
 - 论文中的 **Experimental Protocol** 小节
 - 论文中的 **Implementation Details** 小节
 - 论文表格模板
+
+启动 TensorBoard 看曲线：
+tensorboard --logdir results/tb_dev_constrained_llm_hier_5seeds --port 6006
+http://localhost:6006
