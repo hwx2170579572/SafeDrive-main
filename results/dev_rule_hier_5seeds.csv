@@ -1,2 +1,0 @@
-mode,num_runs,seeds,raw_return,raw_success,raw_collision,raw_mean_speed,raw_unsafe_headway,shield_success,shield_collision,shield_interventions,shield_cost_total,time_sec
-rule_hier,5,"42,52,62,72,82",107.054±12.932,0.920±0.098,0.080±0.098,28.644±7.226,0.032±0.039,0.880±0.160,0.120±0.160,79.600±48.329,0.119±0.150,504.023±60.199

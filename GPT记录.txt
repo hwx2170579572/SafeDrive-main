@@ -1,0 +1,57 @@
+single_file_llm_guided_rl
+把安全链路分成两层补进去：先加 verifier + shield，再把低层算法升级成 ConstrainedSAC（拉格朗日版）。
+
+single_file_llm_guided_rl_v2 
+继续补充下面两块： 一块是 RealLLM 接口占位，把 mock 和真实 API 做统一入口。 另一块是 实验总控 compare 模块，一键跑多种 mode 并输出对比表。
+
+single_file_llm_guided_rl_v3
+继续补第三块：compare 结果自动保存 csv/latex 表 + 多 seed 平均与方差
+
+核心只看这几个参数。
+
+1）--mode
+
+表示你要跑哪一种方法。
+
+常见可用的有：
+
+baseline_sac
+纯 SAC 基线，不用高层 planner
+
+shaping_sac
+用 reward shaping 的 SAC
+
+rule_hier
+规则高层 + SAC
+
+llm_hier
+Mock LLM 高层 + SAC
+
+constrained_rule_hier
+规则高层 + Constrained SAC
+
+constrained_llm_hier
+Mock LLM 高层 + Constrained SAC
+
+real_llm_hier
+真实 LLM 高层 + SAC
+
+constrained_real_llm_hier
+真实 LLM 高层 + Constrained SAC
+
+python single_file_llm_guided_rl_v2.py --mode constrained_llm_hier --episodes 120 --max-steps 200 --eval-episodes 10 --seed 42 --shield-train --llm-backend mock
+
+
+
+
+
+
+
+26.4.10  ：
+LLM转变接口转发改动：最后一次对话freeze文件是配对的，只是存在LLM返回了不合法json
+constraint costs问题分析：先不要把第三优先级并到主线。
+
+更好的做法是把它当成一条旁路分支：
+
+如果后面 formal smoke 显示 constrained_real_llm_hier 在真实 LLM 下也只是“更慢、更保守、但并不更优”，再回头开第三优先级性能修复分支。
+如果真实 LLM 下已经体现出明显收益，那现在这版 priority2 就足够作为正式协议。

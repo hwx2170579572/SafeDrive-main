@@ -1,0 +1,111 @@
+26.4.12.17.06：
+python single_file_llm_guided_rl_v6_gpu_priority2_tensorboard_api_midlevel_plan_hold_event_trigger_fix4.py ^ 
+  --workflow-stage dev ^
+  --allow-real-llm-smoke ^
+  --mode constrained_real_llm_hier ^
+  --episodes 8 ^
+  --max-steps 200 ^
+  --eval-episodes 2 ^
+  --seed 42 ^
+  --llm-backend real ^
+  --print-prompt-on-replan ^
+  --llm-call-log-path results/dev_planhold_smoke_fix4_llm_calls.json ^
+  --train-log-path results/dev_planhold_smoke_fix4_train_diag.csv ^
+  --train-json-path results/dev_planhold_smoke_fix4_train_diag.json ^
+  --train-plot-path results/dev_planhold_smoke_fix4_train_diag.png ^
+  --tensorboard-dir results/tb_dev_planhold_smoke_fix4 ^
+  --lambda-ema-beta 0.97 ^
+  --min-lambda-collision 0.01 ^
+  --min-lambda-headway 0.01 ^
+  --collision-risk-ttc-threshold 4.0 ^
+  --collision-risk-front-distance 10.0
+
+
+26.4.12.18.58:
+python single_file_llm_guided_rl_v6_gpu_priority2_tensorboard_api_midlevel_plan_hold_event_trigger_fix5_runtime_tuned.py ^ 
+  --workflow-stage dev ^
+  --allow-real-llm-smoke ^
+  --mode constrained_real_llm_hier ^
+  --episodes 8 ^
+  --max-steps 200 ^
+  --eval-episodes 2 ^
+  --seed 42 ^
+  --llm-backend real ^
+  --print-prompt-on-replan ^
+  --llm-call-log-path results/dev_planhold_smoke_fix5_llm_calls.json ^
+  --train-log-path results/dev_planhold_smoke_fix5_train_diag.csv ^
+  --train-json-path results/dev_planhold_smoke_fix5_train_diag.json ^
+  --train-plot-path results/dev_planhold_smoke_fix5_train_diag.png ^
+  --tensorboard-dir results/tb_dev_planhold_smoke_fix5 ^
+  --lambda-ema-beta 0.97 ^
+  --min-lambda-collision 0.01 ^
+  --min-lambda-headway 0.01 ^
+  --collision-risk-ttc-threshold 4.0 ^
+  --collision-risk-front-distance 10.0
+
+26.4.12.19.26：
+python single_file_llm_guided_rl_v6_gpu_priority2_tensorboard_api_midlevel_plan_hold_event_trigger_fix6_headway_hold.py ^
+  --workflow-stage dev ^
+  --allow-real-llm-smoke ^
+  --mode constrained_real_llm_hier ^
+  --episodes 8 ^
+  --max-steps 200 ^
+  --eval-episodes 2 ^
+  --seed 42 ^
+  --llm-backend real ^
+  --print-prompt-on-replan ^
+  --llm-call-log-path results/dev_planhold_smoke_fix6_llm_calls.json ^
+  --train-log-path results/dev_planhold_smoke_fix6_train_diag.csv ^
+  --train-json-path results/dev_planhold_smoke_fix6_train_diag.json ^
+  --train-plot-path results/dev_planhold_smoke_fix6_train_diag.png ^
+  --tensorboard-dir results/tb_dev_planhold_smoke_fix6 ^
+  --lambda-ema-beta 0.97 ^
+  --min-lambda-collision 0.01 ^
+  --min-lambda-headway 0.01 ^
+  --collision-risk-ttc-threshold 4.0 ^
+  --collision-risk-front-distance 10.0
+
+26.4.12.20.00：
+python single_file_llm_guided_rl_v6_gpu_priority2_tensorboard_api_midlevel_plan_hold_event_trigger_fix7_overspeed_hold.py ^
+  --workflow-stage dev ^
+  --allow-real-llm-smoke ^
+  --mode constrained_real_llm_hier ^
+  --episodes 8 ^
+  --max-steps 200 ^
+  --eval-episodes 2 ^
+  --seed 42 ^
+  --llm-backend real ^
+  --print-prompt-on-replan ^
+  --llm-call-log-path results/dev_planhold_smoke_fix7_llm_calls.json ^
+  --train-log-path results/dev_planhold_smoke_fix7_train_diag.csv ^
+  --train-json-path results/dev_planhold_smoke_fix7_train_diag.json ^
+  --train-plot-path results/dev_planhold_smoke_fix7_train_diag.png ^
+  --tensorboard-dir results/tb_dev_planhold_smoke_fix7 ^
+  --lambda-ema-beta 0.97 ^
+  --min-lambda-collision 0.01 ^
+  --min-lambda-headway 0.01 ^
+  --collision-risk-ttc-threshold 4.0 ^
+  --collision-risk-front-distance 10.0
+
+26.4.12.21.20：
+python single_file_llm_guided_rl_v6_gpu_priority2_tensorboard_api_midlevel_plan_hold_event_trigger_fix8.py ^
+  --workflow-stage dev ^
+  --allow-real-llm-smoke ^
+  --mode constrained_real_llm_hier ^
+  --episodes 8 ^
+  --max-steps 200 ^
+  --eval-episodes 2 ^
+  --seed 42 ^
+  --llm-backend real ^
+  --print-prompt-on-replan ^
+  --llm-call-log-path results/dev_fix8_smoke_llm_calls.json ^
+  --train-log-path results/dev_fix8_smoke_train_diag.csv ^
+  --train-json-path results/dev_fix8_smoke_train_diag.json ^
+  --train-plot-path results/dev_fix8_smoke_train_diag.png ^
+  --tensorboard-dir results/tb_dev_fix8_smoke ^
+  --lambda-ema-beta 0.97 ^
+  --min-lambda-collision 0.01 ^
+  --min-lambda-headway 0.01 ^
+  --collision-risk-ttc-threshold 4.0 ^
+  --collision-risk-front-distance 10.0
+

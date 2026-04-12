@@ -203,26 +203,10 @@ python single_file_llm_guided_rl_v6_gpu_priority1_tensorboard.py --workflow-stag
 
 python single_file_llm_guided_rl_v6_gpu_priority2_tensorboard.py --workflow-stage dev --mode compare --compare-modes constrained_llm_hier --compare-seeds 42,52,62,72,82 --episodes 120 --max-steps 200 --eval-episodes 5 --eval-primary-report raw --compare-primary-report raw --llm-backend mock --lambda-ema-beta 0.97 --min-lambda-collision 0.01 --min-lambda-headway 0.01 --collision-risk-ttc-threshold 4.0 --collision-risk-front-distance 10.0 --tensorboard-dir results/tb_dev_constrained_llm_hier_p2_5seeds --compare-save-json results/dev_constrained_llm_hier_p2_5seeds.json --compare-save-csv results/dev_constrained_llm_hier_p2_5seeds.csv 
 
-python single_file_llm_guided_rl_v6_gpu_priority2_tensorboard.py \
-  --workflow-stage dev \
-  --mode compare \
-  --compare-modes llm_hier,constrained_llm_hier,constrained_rule_hier \
-  --compare-seeds 42,52,62,72,82 \
-  --episodes 120 \
-  --max-steps 200 \
-  --eval-episodes 5 \
-  --eval-primary-report raw \
-  --compare-primary-report raw \
-  --llm-backend mock \
-  --lambda-ema-beta 0.97 \
-  --min-lambda-collision 0.01 \
-  --min-lambda-headway 0.01 \
-  --collision-risk-ttc-threshold 4.0 \
-  --collision-risk-front-distance 10.0 \
-  --tensorboard-dir results/tb_dev_p2_crosscheck_5seeds \
-  --compare-save-json results/dev_p2_crosscheck_5seeds.json \
-  --compare-save-csv results/dev_p2_crosscheck_5seeds.csv
+python single_file_llm_guided_rl_v6_gpu_priority2_tensorboard.py --workflow-stage dev --mode compare --compare-modes llm_hier,constrained_llm_hier,constrained_rule_hier --compare-seeds 42,52,62,72,82 --episodes 120 --max-steps 200 --eval-episodes 5 --eval-primary-report raw --compare-primary-report raw --llm-backend mock --lambda-ema-beta 0.97 --min-lambda-collision 0.01 --min-lambda-headway 0.01 --collision-risk-ttc-threshold 4.0 --collision-risk-front-distance 10.0 --tensorboard-dir results/tb_dev_p2_crosscheck_5seeds --compare-save-json results/dev_p2_crosscheck_5seeds.json --compare-save-csv results/dev_p2_crosscheck_5seeds.csv
 ---
+
+
 
 ### 6.4 开发阶段重点看哪些指标
 
@@ -279,7 +263,19 @@ python single_file_llm_guided_rl_v6.py \
   --max-steps 200 \
   --eval-episodes 8
 ```
+直接冻结，不再继续改 reward/cost/planner。
+python single_file_llm_guided_rl_v6_gpu_priority2_tensorboard_api.py --workflow-stage freeze --freeze-save results/frozen_protocol_p2_real_api.json --formal-modes baseline_sac,shaping_sac,rule_hier,constrained_real_llm_hier --formal-seeds 142,242,342 --episodes 150 --max-steps 200 --eval-episodes 8 --llm-backend real --llm-model gpt-4.1-nano --llm-retry-times 3 --llm-retry-backoff 1,3,5 --lambda-ema-beta 0.97 --min-lambda-collision 0.01 --min-lambda-headway 0.01 --collision-risk-ttc-threshold 4.0 --collision-risk-front-distance 10.0      
 
+python single_file_llm_guided_rl_v6_gpu_priority2_tensorboard_api.py --workflow-stage formal --freeze-load results/frozen_protocol_p2_real_api.json --formal-strict --mode constrained_real_llm_hier --tensorboard-dir results/tb_formal_ours_smoke --llm-call-log-path results/formal_ours_smoke_llm_calls.json
+
+一是把 workflow.stage 从 strict 协议比较里排除了，避免 freeze 与 formal 阶段天然不一致导致的 canonical_config_mismatch；二是保留了 validate 在 configure_llm_for_stage 之前的顺序，避免 formal 运行时先把配置改写再去校验
+
+freeze：
+python single_file_llm_guided_rl_v6_gpu_priority2_tensorboard_api_midlevel_final.py --workflow-stage dev --allow-real-llm-smoke --mode constrained_real_llm_hier --episodes 5 --max-steps 200 --eval-episodes 2 --seed 42 --llm-backend real --tensorboard-dir results/tb_dev_ours_midlevel_smoke --llm-call-log-path results/dev_ours_midlevel_smoke_llm_calls.json --train-log-path results/dev_ours_midlevel_smoke_train_diag.csv --train-json-path results/dev_ours_midlevel_smoke_train_diag.json --train-plot-path results/dev_ours_midlevel_smoke_train_diag.png   
+
+
+formal：
+python single_file_llm_guided_rl_v6_gpu_priority2_tensorboard_api_fixed.py --workflow-stage formal --freeze-load results/frozen_protocol_p2_real_api_v2.json --formal-strict --mode constrained_real_llm_hier --tensorboard-dir results/tb_formal_ours_smoke --llm-call-log-path results/formal_ours_smoke_llm_calls.json
 ### 为什么 formal 只保留这 4 个主方法
 
 因为这 4 个方法正好对应论文主线：
