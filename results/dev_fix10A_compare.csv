@@ -1,2 +1,0 @@
-mode,num_runs,seeds,raw_return,raw_success,raw_collision,raw_mean_speed,raw_unsafe_headway,shield_success,shield_collision,shield_interventions,shield_cost_total,time_sec
-constrained_real_llm_hier,3,"42,52,62",89.921±2.474,1.000±0.000,0.000±0.000,17.308±1.261,0.002±0.002,1.000±0.000,0.000±0.000,7.222±7.622,0.012±0.004,1339.597±237.171
